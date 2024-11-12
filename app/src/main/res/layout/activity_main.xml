@@ -16,6 +16,13 @@
         android:textSize="48sp"
         android:layout_gravity="center_horizontal"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_gravity="center_horizontal"
+        android:text="Location not available" />
     <EditText
         android:id="@+id/precision"
         android:layout_width="match_parent"

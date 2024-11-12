@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -87,16 +88,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayDistance() {
         final TextView distanceView = findViewById(R.id.distance);
+        final TextView locationView = findViewById(R.id.location);
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
                 double distance = 0.0;
+                Location location = null;
                 if (bound && odometer != null) {
                     distance = odometer.getDistance();
+                    location = odometer.getCurrentLocation();
                 }
                 String distanceStr = String.format(Locale.getDefault(), "%1$,.2f miles", distance);
                 distanceView.setText(distanceStr);
+                if (location != null) {
+                    String locationStr = String.format(Locale.getDefault(), "Lat: %1$,.4f, Lon: %2$,.4f", location.getLatitude(), location.getLongitude());
+                    locationView.setText(locationStr);
+                } else {
+                    locationView.setText("Location not available");
+                }
+
                 handler.postDelayed(this, 1000);
             }
         });

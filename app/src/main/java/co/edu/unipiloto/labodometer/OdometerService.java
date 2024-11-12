@@ -20,6 +20,7 @@ public class OdometerService extends Service {
     private LocationManager locManager;
     private static double distanceInMeters;
     private static Location lastLocation = null;
+    private static Location currentLocation = null;
 
     public static final String PERMISSION_STRING = android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -41,6 +42,7 @@ public class OdometerService extends Service {
                 }
                 distanceInMeters += location.distanceTo(lastLocation);
                 lastLocation = location;
+                currentLocation = location;
             }
 
             @Override
@@ -93,4 +95,8 @@ public class OdometerService extends Service {
             listener = null;
         }
     }
+    public Location getCurrentLocation() {
+        return currentLocation;
+    }
+
 }

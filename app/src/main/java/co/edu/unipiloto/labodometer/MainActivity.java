@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -21,10 +20,10 @@ import androidx.core.content.ContextCompat;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
     private OdometerService odometer;
     private boolean bound = false;
     private static final int PERMISSION_REQUEST_CODE = 698;
+    private Intent serviceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,32 +42,24 @@ public class MainActivity extends AppCompatActivity {
             if (!precisionStr.isEmpty() && !updateIntervalStr.isEmpty()) {
                 double precision = Double.parseDouble(precisionStr);
                 int updateInterval = Integer.parseInt(updateIntervalStr);
-
-                Log.d(TAG, "Starting service with precision: " + precision + " and updateInterval: " + updateInterval);
-
-                Intent intent = new Intent(this, OdometerService.class);
-                intent.putExtra("precision", precision);
-                intent.putExtra("updateInterval", updateInterval);
-                startService(intent);
-                Log.d(TAG, "Service start requested");
-
-                if (ContextCompat.checkSelfPermission(this, OdometerService.PERMISSION_STRING) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{OdometerService.PERMISSION_STRING}, PERMISSION_REQUEST_CODE);
-                } else {
-                    bindService(intent, connection, Context.BIND_AUTO_CREATE);
-                }
-            } else {
-                Log.e(TAG, "Precision or update interval is empty");
+                serviceIntent = new Intent(this, OdometerService.class);
+                serviceIntent.putExtra("precision", precision);
+                serviceIntent.putExtra("updateInterval", updateInterval);
+                startService(serviceIntent);
             }
         });
-
         displayDistance();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart called");
+        if (ContextCompat.checkSelfPermission(this, OdometerService.PERMISSION_STRING) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{OdometerService.PERMISSION_STRING}, PERMISSION_REQUEST_CODE);
+        } else {
+            Intent intent = new Intent(this, OdometerService.class);
+            bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        }
     }
 
     @Override
@@ -78,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
             unbindService(connection);
             bound = false;
         }
-        Log.d(TAG, "onStop called");
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -87,13 +77,11 @@ public class MainActivity extends AppCompatActivity {
             OdometerService.OdometerBinder odometerBinder = (OdometerService.OdometerBinder) binder;
             odometer = odometerBinder.getOdometer();
             bound = true;
-            Log.d(TAG, "Service connected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             bound = false;
-            Log.d(TAG, "Service disconnected");
         }
     };
 
@@ -110,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 String distanceStr = String.format(Locale.getDefault(), "%1$,.2f miles", distance);
                 distanceView.setText(distanceStr);
                 handler.postDelayed(this, 1000);
-                Log.d(TAG, "Distance updated: " + distanceStr);
             }
         });
     }

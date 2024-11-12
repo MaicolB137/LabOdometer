@@ -99,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
                     distance = odometer.getDistance();
                     location = odometer.getCurrentLocation();
                 }
-                String distanceStr = String.format(Locale.getDefault(), "%1$,.2f miles", distance);
+                String distanceStr = String.format(Locale.getDefault(), "%1$,.2f metros", distance);
                 distanceView.setText(distanceStr);
                 if (location != null) {
                     String locationStr = String.format(Locale.getDefault(), "Lat: %1$,.4f, Lon: %2$,.4f", location.getLatitude(), location.getLongitude());
                     locationView.setText(locationStr);
                 } else {
-                    locationView.setText("Location not available");
+                    locationView.setText("Ubicacion no disponible");
                 }
 
                 handler.postDelayed(this, 1000);

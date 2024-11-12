@@ -16,5 +16,24 @@
         android:textSize="48sp"
         android:layout_gravity="center_horizontal"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+    <EditText
+        android:id="@+id/precision"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Precisión del movimiento (metros)"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/update_interval"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tiempo de actualización (segundos)"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/start_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Iniciar" />
 
 </LinearLayout>

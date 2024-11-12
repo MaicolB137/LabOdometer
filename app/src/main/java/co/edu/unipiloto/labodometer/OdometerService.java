@@ -14,8 +14,6 @@ import android.os.IBinder;
 
 import androidx.core.content.ContextCompat;
 
-
-
 public class OdometerService extends Service {
     private final IBinder binder = new OdometerBinder();
     private LocationListener listener;
@@ -25,8 +23,16 @@ public class OdometerService extends Service {
 
     public static final String PERMISSION_STRING = android.Manifest.permission.ACCESS_FINE_LOCATION;
 
+    @Override
     public void onCreate() {
         super.onCreate();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        double precision = intent.getDoubleExtra("precision", 1.0);
+        int updateInterval = intent.getIntExtra("updateInterval", 1) * 1000;
+
         listener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -37,11 +43,10 @@ public class OdometerService extends Service {
                 lastLocation = location;
             }
 
-
-
             @Override
             public void onProviderEnabled(String arg0) {
             }
+
             @Override
             public void onProviderDisabled(String arg0) {
             }
@@ -50,14 +55,16 @@ public class OdometerService extends Service {
             public void onStatusChanged(String arg0, int arg1, Bundle bundle) {
             }
         };
+
         locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if(ContextCompat.checkSelfPermission(this, PERMISSION_STRING) == PackageManager.PERMISSION_GRANTED) {
-            //locManager.removeUpdates(listener);
+        if (ContextCompat.checkSelfPermission(this, PERMISSION_STRING) == PackageManager.PERMISSION_GRANTED) {
             String provider = locManager.getBestProvider(new Criteria(), true);
             if (provider != null) {
-                locManager.requestLocationUpdates(provider, 1000, 1, listener);
+                locManager.requestLocationUpdates(provider, updateInterval, (float) precision, listener);
             }
         }
+
+        return START_STICKY;
     }
 
     public class OdometerBinder extends Binder {
@@ -72,20 +79,18 @@ public class OdometerService extends Service {
     }
 
     public double getDistance() {
-        return this.distanceInMeters / 1609.344;
+        return this.distanceInMeters;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (locManager != null && listener != null) {
-            if(ContextCompat.checkSelfPermission(this, PERMISSION_STRING) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, PERMISSION_STRING) == PackageManager.PERMISSION_GRANTED) {
                 locManager.removeUpdates(listener);
             }
             locManager = null;
             listener = null;
         }
     }
-
-
 }
